@@ -23,24 +23,25 @@ y = x + echo;
 
 %% Signal Processing
 NFIR = 2000;
-w = zeros(NFIR, 1);         % soooo nicht auf ARM, 2 Spalten
+w = zeros(NFIR, 1:length(x)-NFIR+1);         % soooo nicht auf ARM, 2 Spalten
 u = 0.01;                   % konvergenzgeschwindigkeit
 x = [zeros(NFIR,1)' x']';
 y = [zeros(NFIR,1)' y']';
 
 for k = 1:length(x)-NFIR;
-w = w + u*x(k:k+NFIR-1)*(y(k+NFIR)-w'*x(k:k+NFIR-1));
+w(:,k+1) = w(:,k) + u*x(k:k+NFIR-1)*(y(k+NFIR)-w(:,k)'*x(k:k+NFIR-1));
 end
 
-w  = w(end:-1:1);
-rb_=roots(flipud(w));
+rb_ = roots(w);
 
+rb = rb_;
 
-ra = rb_(find(abs(rb_) <=1 ));
+ra = rb(find(abs(rb) <= 0.99 ));
 ra = 1./ra;
-rb = rb_(find(abs(rb_) > 1));
+rb = rb(find(abs(rb) > 0.99));
 x_filter = filter(ra, rb, x);
 soundsc(100*real(x_filter), 8000);
+plot(100*real(x_filter));
 
 % R_xx = xcorr(x,x);
 % plot(R_xx)
