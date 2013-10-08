@@ -57,7 +57,7 @@ plot(x);
 if w_global == true
     figure
     surf(w(:,1:100:end));
-    set(gca, 'XDir', 'reverse')
+    set(gca, 'YDir', 'reverse')
     figure;
     plot([zeros(deltak, 1); w(:,end)]);
     hold all;
