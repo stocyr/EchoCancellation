@@ -1,9 +1,12 @@
 %% ECHO Cancellation Project 
 clear all
+close all;
 % Parameter
-td = 200;       % Delay Time in [ms]
+td = 200E-3;       % Delay Time in [s]
 fs = 44100/6;      % Sampling frequency
-a = 0.4;        % Gain of the Echo Signal
+a = 0.4;           % Gain of the Echo Signal
+tk = 1/100;        % Lokale Korrelation am Anfang
+u = 0.0002;          % konvergenzgeschwindigkeit
 
 % Load Signal
 [sound, fswav, nbit]= wavread('Lorem_ipsum_3500.wav');
@@ -11,31 +14,48 @@ x = sound(round(1:fswav/fs:end));  % Undersampling
 clearvars sound;
 soundsc(x, fs);   % play sound
 
-% Create Echo
-nshift = floor(td*10^-3*fs);
+x=randn(size(x));
 
-echo = [zeros(nshift,1)' a*x']';
-x = [x' zeros(nshift,1)']';
-y = x + echo;
-soundsc(y, fs);   % play sound + echo
+% Create Echo
+nshift = floor(td*fs);
+
+g = zeros(size(x));
+g(1) = 1;
+g(10) = a;
+y=filter(g,1,x);
+
+ soundsc(y, fs);   % play sound + echo
 
 %% Signal Processing
-NFIR = 2000;
-%w = zeros(NFIR, length(x)-NFIR+1);         % soooo nicht auf ARM, 2 Spalten
-w = zeros(NFIR, 1);         % soooo nicht auf ARM, 2 Spalten
-u = 0.02;                   % konvergenzgeschwindigkeit
-x = [zeros(NFIR,1)' x']';
-y = [zeros(NFIR,1)' y']';
+NFIR = 20;
+%deltak = floor(tk*fs);
+deltak = 1;
+w = zeros(NFIR - deltak, 1);
+err = zeros(size(x));
 
-for k = 1:length(x)-NFIR;
-    %w(:,k+1) = w(:,k) + u*x(k:k+NFIR-1)*(y(k+NFIR)-w(:,k)'*x(k:k+NFIR-1));
-    w = w + u*x(k:k+NFIR-1)*(y(k+NFIR)-w'*x(k:k+NFIR-1));
+
+for k = NFIR:length(x);
+    %w(:,k-NFIR+1) = w(:,k) + u*x(k-deltak:-1:k-NFIR+1)*(err(k));
+    err(k)=y(k)-w'*x(k-deltak:-1:k-NFIR+1);
+    w = w + u*x(k-deltak:-1:k-NFIR+1)*(err(k));
 end
 
-% theoretischer Filterkern:
+plot(err, 'r--');
+hold on;
+plot(x);
+
+figure;
+plot([zeros(deltak); w]);
+hold all;
+plot(g(1:length(w)));
+
+
+return
+
+% % theoretischer Filterkern:
 % w = zeros(NFIR, 1);
 % w(1) = 1;
-% w(nshift) = a;
+% w(nshift) = -a;
 % w = flipud(w);
 
 %rb_ = roots(w(:,end));
@@ -48,10 +68,12 @@ rb = rb_;
 % umgewandelt werden. dies wird gemacht, indem man den betrag genau
 % invertiert und sie vom rb in die ra kiste verfrachtet.
 
-ra = rb(find(abs(rb) >=1 ));
-ra = 1/ra;
-rb = rb(find(abs(rb) < 1));
-x_filter = filter(rb, ra, x);
+ra2 = rb;
+rb2 = 1;
+%ra = rb(find(abs(rb) >=1 ));
+%ra = 1/ra;
+%rb = rb(find(abs(rb) < 1));
+x_filter = filter(rb2, ra2, x);
 
 % normalize and make real
 x_filter = real(x_filter)/max(abs(real(x_filter)));
