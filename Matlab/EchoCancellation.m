@@ -48,39 +48,3 @@ figure;
 plot([zeros(deltak); w]);
 hold all;
 plot(g(1:length(w)));
-
-
-return
-
-% % theoretischer Filterkern:
-% w = zeros(NFIR, 1);
-% w(1) = 1;
-% w(nshift) = -a;
-% w = flipud(w);
-
-%rb_ = roots(w(:,end));
-rb_ = roots(w);
-
-rb = rb_;
-
-% alle rb werden zu ra. ra dürfen aber nicht ausserhalb des einheitskreises
-% sein. also müssen alle rb ausserhalb des einheitskreises in gleiche pole
-% umgewandelt werden. dies wird gemacht, indem man den betrag genau
-% invertiert und sie vom rb in die ra kiste verfrachtet.
-
-ra2 = rb;
-rb2 = 1;
-%ra = rb(find(abs(rb) >=1 ));
-%ra = 1/ra;
-%rb = rb(find(abs(rb) < 1));
-x_filter = filter(rb2, ra2, x);
-
-% normalize and make real
-x_filter = real(x_filter)/max(abs(real(x_filter)));
-plot(x_filter);
-soundsc(x_filter, fs);    % play sound filtered
-
-plot(abs(fftshift(fft(x_filter))))
-
-% todo: u optimieren, mit referenz filterkern w ausprobieren, komplexeres
-% echo generieren
