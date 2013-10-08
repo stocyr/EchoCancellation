@@ -2,36 +2,39 @@
 clear all
 close all;
 % Parameter
-td = 200E-3;       % Delay Time in [s]
-fs = 44100/6;      % Sampling frequency
-a = 0.4;           % Gain of the Echo Signal
-tk = 1/100;        % Lokale Korrelation am Anfang
-u = 0.0002;          % konvergenzgeschwindigkeit
+td = 200E-3;        % Delay Time in [s]
+fs = 44100/6;       % Sampling frequency
+a = 0.4;            % Gain of the Echo Signal
+tk = 1/100;         % Lokale Korrelation am Anfang
+u = 0.0285;         % konvergenzgeschwindigkeit
+NFIR = 2000;        % Filterlenght 
+deltak = floor(tk*fs);  % Ignored Samples at the beginning
+% deltak = 1;       % Use only for noise signal
 
-w_global = true;
+w_global = false;   % if true: all values of the filter are stored, 
+                    % otherwise the actual sample is overwritten
 
 % Load Signal
 [sound, fswav, nbit]= wavread('Lorem_ipsum_3500.wav');
 x = sound(round(1:fswav/fs:end));  % Undersampling
+x = [x; x];
 clearvars sound;
 %soundsc(x, fs);   % play sound
 
-x=randn(size(x));
+%x=randn(size(x));
 
 % Create Echo
 nshift = floor(td*fs);
 
 g = zeros(size(x));
 g(1) = 1;
-g(8) = a;
+g(nshift) = a;
 y=filter(g,1,x);
 
-%soundsc(y, fs);   % play sound + echo
+% soundsc(y, fs);   % play sound + echo
 
 %% Signal Processing
-NFIR = 20;
-%deltak = floor(tk*fs);
-deltak = 1;
+
 if w_global == true
     w = zeros(NFIR - deltak, length(x) - NFIR+2);
 else
@@ -56,7 +59,7 @@ plot(x);
 
 if w_global == true
     figure
-    surf(w(:,1:100:end));
+    surf(w(:,1:100:end), 'EdgeColor', 'none', 'LineStyle', 'none', 'FaceLighting', 'phong');
     set(gca, 'YDir', 'reverse')
     figure;
     plot([zeros(deltak, 1); w(:,end)]);
@@ -64,7 +67,9 @@ if w_global == true
     plot(g(1:NFIR-deltak));
 else
     figure;
-    plot([zeros(deltak); w]);
+    plot([zeros(deltak,1); w]);
     hold all;
     plot(g(1:length(w)));
 end
+
+soundsc(err, fs);   % error signal
