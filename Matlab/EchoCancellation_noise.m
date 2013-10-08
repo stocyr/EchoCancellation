@@ -6,7 +6,7 @@ td = 200E-3;       % Delay Time in [s]
 fs = 44100/6;      % Sampling frequency
 a = 0.4;           % Gain of the Echo Signal
 tk = 1/100;        % Lokale Korrelation am Anfang
-u = 0.00008;          % konvergenzgeschwindigkeit
+u = 0.0008;          % konvergenzgeschwindigkeit
 
 w_global = true;
 
@@ -50,9 +50,10 @@ for k = NFIR:length(x);
     end
 end
 
-plot(err, 'r--');
-hold on;
-plot(x);
+% figure
+% plot(err(1:500), 'linewidth', 2);
+% title('Error over time');
+% xlabel('Time [Samples]');
 
 if w_global == true
     figure
@@ -62,7 +63,7 @@ if w_global == true
     xlabel('Time [Samples]');
     ylabel('Filter coefficients');
     figure;
-    plot(g(1:NFIR-deltak), '--', 'linewidth', 2);
+    plot(g(1:NFIR), '--', 'linewidth', 2);
     hold all;
     plot([zeros(deltak, 1); w(:,end)], 'linewidth', 2);
     legend('Original echo', 'Reproduced echo');
