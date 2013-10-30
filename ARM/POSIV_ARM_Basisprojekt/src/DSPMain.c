@@ -89,6 +89,103 @@ void DAC_Common_Config(void);
 void DAC_Ch1_Config(void);
 void DAC_Ch2_Config(void);
 
+
+/*****************************************************************************/
+/*  Procedure   : TIM12_Config                                               */
+/*****************************************************************************/
+/*                                                                           */
+/*  Function    : Configures timer 12 channel 2 as clock source for          */
+/*                AAF-Filters on PB15 (Allowed frequencies go from 1Hz to    */
+/*                45kHz), clock source must be 100*fg                        */
+/*                                                                           */
+/*  Type        : Global                                                     */
+/*                                                                           */
+/*  Input Para  : Fg: Cut off frequency off AAF (Will be set to max or min   */
+/*                    allowed values if out of range)                        */
+/*                                                                           */
+/*  Output Para : None                                                       */
+/*                                                                           */
+/*                                                                           */
+/*  Author      : I. Oesch                                                   */
+/*                                                                           */
+/*  History     : 21.10.2013  IO Created                                     */
+/*                                                                           */
+/*****************************************************************************/
+void TIM12_Config(unsigned int Fg)
+{
+    /* procedure data */
+    GPIO_InitTypeDef GPIO_InitStructure;
+    TIM_TimeBaseInitTypeDef  TIM_TimeBaseStructure;
+    TIM_OCInitTypeDef  TIM_OCInitStructure;
+
+    /* Compute the prescaler value */
+    unsigned int RequiredDivider = (SYSCLK + Fg*50) / (Fg*100);
+
+    unsigned int PrescalerValue = 0;
+    unsigned int TimerPeriod = RequiredDivider-1;
+
+    /* procedure code */
+
+    /* Make value for Fg in-range of 1 to 45000Hz */
+    if (Fg < 1) {
+       Fg = 1;
+    }
+    if (Fg > 45000) {
+       Fg = 45000;
+    }
+
+    /* TIM12 clock enable */
+    RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM12, ENABLE);
+
+    /* GPIOB clock enable */
+    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, ENABLE);
+
+    /* GPIOB Configuration:  TIM12 CH2 (PB15) */
+    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_15;
+    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
+    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
+    GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+    GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP ;
+    GPIO_Init(GPIOB, &GPIO_InitStructure);
+
+    /* Connect TIM3 pins to AF2 */
+    GPIO_PinAFConfig(GPIOB, GPIO_PinSource15, GPIO_AF_TIM12);
+
+    /* Determine Prescaler Value, if divider is > 2^16 we need a prescaler */
+    /* to be un teh suer side we use 2^15 as limit...                      */
+    if (RequiredDivider > 32768) {
+       /* Prescaler and timer divide by N+1 */
+       PrescalerValue = RequiredDivider/32768;
+       TimerPeriod = RequiredDivider/(PrescalerValue+1)-1;
+    }
+
+  /* Time base configuration */
+  TIM_TimeBaseStructure.TIM_Period = TimerPeriod;
+  TIM_TimeBaseStructure.TIM_Prescaler = PrescalerValue;
+  TIM_TimeBaseStructure.TIM_ClockDivision = 0;
+  TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
+  TIM_TimeBaseInit(TIM12, &TIM_TimeBaseStructure);
+
+  /* PWM1 Mode configuration: Channel2 */
+  TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM1;
+  TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
+  TIM_OCInitStructure.TIM_Pulse = TimerPeriod/2;
+  TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_High;
+  TIM_OC2Init(TIM12, &TIM_OCInitStructure);
+
+  TIM_OC2PreloadConfig(TIM12, TIM_OCPreload_Enable);
+
+  TIM_ARRPreloadConfig(TIM12, ENABLE);
+
+  /* TIM12 enable counter */
+  TIM_Cmd(TIM12, ENABLE);
+
+}
+/*****************************************************************************/
+/*  End         : TIM12_Config                                               */
+/*****************************************************************************/
+
+
 /*****************************************************************************/
 /*  Procedure   : main                                                       */
 /*****************************************************************************/
@@ -129,7 +226,7 @@ int main(int argc, char *argv[])
 
 	/* Call the init function from the user */
 	InitProcessing();
-
+	TIM12_Config(4000);
 	/* Configure the required interrupts */
 	Interrupt_Config();
 

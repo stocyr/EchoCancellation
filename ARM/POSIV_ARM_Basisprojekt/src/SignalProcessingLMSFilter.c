@@ -140,6 +140,7 @@ q31_t CoeffsQ31[FILTER_LENGTH] =
 /* Buffers for q15 variant */
 q15_t OutBufferQ15[BLOCK_SIZE];
 q15_t InBufferQ15[BLOCK_SIZE];
+q15_t InBuffer2Q15[BLOCK_SIZE];
 // Filter Bandpass, 40dB Daempfung, Sperr bis 6000Hz, ab 15000Hz, Durchlass 9000Hz- 12000HzFs=44100,
 #define FILTER_LENGTH 1600
 q15_t StateQ15[FILTER_LENGTH + BLOCK_SIZE - 1];
@@ -464,6 +465,7 @@ void ProcessBlock(uint16_t *Channel1_in, uint16_t *Channel2_in, uint16_t *Channe
     /* Copy samples into workbuffer and convert to signed */
     for (i = 0; i < BLOCK_SIZE; i++) {
         InBufferQ15[i] = ((q15_t) (Channel1_in[i] - 32768));
+
     }
 
     /* Set bit, just for time measurements */
@@ -482,7 +484,7 @@ void ProcessBlock(uint16_t *Channel1_in, uint16_t *Channel2_in, uint16_t *Channe
         Channel1_out[i] = OutBufferQ15[i] + 32678;
 
         /* Unfiltered samples on output 2 */
-        Channel2_out[i] = OutBufferQ15[i] + 32678;
+        Channel2_out[i] = InBufferQ15[i] + 32678;
     }
 
 }

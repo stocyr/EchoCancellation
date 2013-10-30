@@ -5,13 +5,13 @@ close all;
 td = 200E-3;        % Delay Time in [s]
 fs = 44100/6;       % Sampling frequency
 a = 0.4;            % Gain of the Echo Signal
-tk = 1/100;         % Lokale Korrelation am Anfang
+tk = 10E-3;         % Lokale Korrelation am Anfang [s]
 u = 0.0285;         % konvergenzgeschwindigkeit
 NFIR = 2000;        % Filterlenght 
 deltak = floor(tk*fs);  % Ignored Samples at the beginning
-% deltak = 1;       % Use only for noise signal
 
-w_global = false;   % if true: all values of the filter are stored, 
+
+w_global = true;   % if true: all values of the filter are stored, 
                     % otherwise the actual sample is overwritten
 
 % Load Signal
@@ -20,7 +20,7 @@ x = sound(round(1:fswav/fs:end));  % Undersampling
 x = [x; x];
 clearvars sound;
 %soundsc(x, fs);   % play sound
-
+% u = 2/((NFIR+1)*std(x(3000:3400))^2);
 %x=randn(size(x));
 
 % Create Echo
@@ -31,7 +31,7 @@ g(1) = 1;
 g(nshift) = a;
 y=filter(g,1,x);
 
-% soundsc(y, fs);   % play sound + echo
+soundsc(y, fs);   % play sound + echo
 
 %% Signal Processing
 
@@ -53,18 +53,34 @@ for k = NFIR:length(x);
     end
 end
 
-plot(err, 'r--');
-hold on;
+%%
+plot(err);
+hold all;
 plot(x);
+title('Error over Time')
+legend('echo-cancelled signal', 'original signal');
+xlabel('Time [s]');
+ylabel('Amplitude');
 
+%%
 if w_global == true
     figure
-    surf(w(:,1:100:end), 'EdgeColor', 'none', 'LineStyle', 'none', 'FaceLighting', 'phong');
+    opengl software;
+    surf(w(7:10:end,end/25:20:end/22));   % , 'EdgeColor', 'none', 'LineStyle', 'none', 'FaceLighting', 'phong'
+    title('Convergence of Filter')
+    ylabel('Coeffitients');
+    xlabel('Time [s]');
     set(gca, 'YDir', 'reverse')
     figure;
-    plot([zeros(deltak, 1); w(:,end)]);
-    hold all;
     plot(g(1:NFIR-deltak));
+    stem(find(g(1:NFIR-deltak)>0), g(find(g(1:NFIR-deltak)>0)), 'linewidth', 2);
+    hold all;
+    plot([zeros(deltak, 1); w(:,end)]);
+    title('Final Filter Coeffitients')
+    legend('Original Echo', 'Reproduced Echo');
+    xlabel('Coeffitients');
+    grid on
+    
 else
     figure;
     plot([zeros(deltak,1); w]);
