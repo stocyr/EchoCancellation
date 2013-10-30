@@ -92,6 +92,11 @@ end
 soundsc(err, fs);   % error signal
 
 %%
+% demonstration
+soundsc(y(1:end/2), fs);   % play sound + echo
+soundsc(err(1:end/2), fs);   % play sound with echo cancellation
+
+%%
 % grafik für PPT:
 
 figure;
