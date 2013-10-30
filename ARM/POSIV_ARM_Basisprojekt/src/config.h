@@ -28,12 +28,12 @@
 #define NUMBER_OF_CHANNELS 2
 
 /* Size of block of samples to collect for processing */
-#define BLOCK_SIZE 512
+#define BLOCK_SIZE 1
 
 /* Required sampling frequency */
 /* (Is derived from SYSCLK, Fs = SYSCLK/round(SYSCLK/Fs)) */
 /* nearest possible Fs will be selected */
-#define FS 44100
+#define FS 8000
 
 /* System clock, normally 84000000 */
 #define SYSCLK 84000000

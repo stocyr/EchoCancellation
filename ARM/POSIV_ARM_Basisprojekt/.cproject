@@ -107,13 +107,13 @@
 							<tool id="com.atollic.truestudio.exe.debug.toolchain.secoutput.839685299" name="Other" superClass="com.atollic.truestudio.exe.debug.toolchain.secoutput"/>
 						</toolChain>
 					</folderInfo>
-					<fileInfo id="com.atollic.truestudio.exe.debug.824356843.345101199" name="SignalProcessingFIRFilter.c" rcbsApplicability="disable" resourcePath="src/SignalProcessingFIRFilter.c" toolsToInvoke="com.atollic.truestudio.exe.debug.toolchain.gcc.729868179.330404046">
-						<tool id="com.atollic.truestudio.exe.debug.toolchain.gcc.729868179.330404046" name="C Compiler" superClass="com.atollic.truestudio.exe.debug.toolchain.gcc.729868179"/>
+					<fileInfo id="com.atollic.truestudio.exe.debug.824356843.639724766" name="SignalProcessingFIRFilter.c" rcbsApplicability="disable" resourcePath="src/SignalProcessingFIRFilter.c" toolsToInvoke="com.atollic.truestudio.exe.debug.toolchain.gcc.729868179.431665073">
+						<tool id="com.atollic.truestudio.exe.debug.toolchain.gcc.729868179.431665073" name="C Compiler" superClass="com.atollic.truestudio.exe.debug.toolchain.gcc.729868179"/>
 					</fileInfo>
 					<sourceEntries>
 						<entry excluding="CMSIS/DSP_Lib/Source/StatisticsFunctions|CMSIS/DSP_Lib/Source/BasicMathFunctions|CMSIS/DSP_Lib/Examples" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Libraries"/>
 						<entry excluding="STM32F4-Discovery" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Utilities"/>
-						<entry excluding="SignalProcessingFFTIFFT.c|SignalProcessingFFT.c|SignalProcessingFFTFilterbank.c|tiny_printf.c|FFTFilterbank.c|main_ADC.c|main_orig.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
+						<entry excluding="SignalProcessingFIRFilter.c|SignalProcessingFFTIFFT.c|SignalProcessingFFT.c|SignalProcessingFFTFilterbank.c|tiny_printf.c|FFTFilterbank.c|main_ADC.c|main_orig.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
