@@ -16,3 +16,6 @@
 *.out
 *.app
 *.asv
+
+# Temporary Microsoft Office Files
+*~$*
