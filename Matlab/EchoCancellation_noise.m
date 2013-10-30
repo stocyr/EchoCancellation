@@ -8,12 +8,17 @@ a = 0.4;           % Gain of the Echo Signal
 tk = 1/100;        % Lokale Korrelation am Anfang
 u = 0.0008;          % konvergenzgeschwindigkeit
 
+% u maximal: 0 < u < 2/((p+1)*sigma^2_x) wobei p = länge des filters und
+% sigma = varianz
+% --> u = 1/((20+1)*std(x)^2)
+
 w_global = true;
 
 % Load Signal
 [sound, fswav, nbit]= wavread('Lorem_ipsum_3500.wav');
 x = sound(round(1:fswav/fs:end));  % Undersampling
 clearvars sound;
+
 %soundsc(x, fs);   % play sound
 
 x=randn(size(x));
