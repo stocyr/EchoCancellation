@@ -20,7 +20,7 @@ x = sound(round(1:fswav/fs:end));  % Undersampling
 x = [x; x];
 clearvars sound;
 %soundsc(x, fs);   % play sound
-% u = 2/((NFIR+1)*std(x(3000:3400))^2);
+u = 2/((NFIR+1)*std(x(3000:3400))^2);
 %x=randn(size(x));
 
 % Create Echo
@@ -37,6 +37,7 @@ soundsc(y, fs);   % play sound + echo
 
 if w_global == true
     w = zeros(NFIR - deltak, length(x) - NFIR+2);
+    w(1470-deltak,:) = 0.4;
 else
     w = zeros(NFIR - deltak, 1);
 end
@@ -66,7 +67,7 @@ ylabel('Amplitude');
 if w_global == true
     figure
     opengl software;
-    surf(w(7:10:end,end/25:20:end/22));   % , 'EdgeColor', 'none', 'LineStyle', 'none', 'FaceLighting', 'phong'
+    surf(w(7:10:end,1:500:end));   % , 'EdgeColor', 'none', 'LineStyle', 'none', 'FaceLighting', 'phong'
     title('Convergence of Filter')
     ylabel('Coeffitients');
     xlabel('Time [s]');
@@ -75,7 +76,7 @@ if w_global == true
     plot(g(1:NFIR-deltak));
     stem(find(g(1:NFIR-deltak)>0), g(find(g(1:NFIR-deltak)>0)), 'linewidth', 2);
     hold all;
-    plot([zeros(deltak, 1); w(:,end)]);
+    plot([zeros(deltak, 1); w(:,end)], 'linewidth',2);
     title('Final Filter Coeffitients')
     legend('Original Echo', 'Reproduced Echo');
     xlabel('Coeffitients');
