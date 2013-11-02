@@ -146,7 +146,7 @@ q15_t w[NFIR-DELAY];
 
 
 #define FILTER_LENGTH 1700
-#define mu 1
+#define MU 1
 
 q15_t StateQ15[FILTER_LENGTH + BLOCK_SIZE - 1];
 // q16-coefficients for FIR-Filter
