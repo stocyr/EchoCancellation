@@ -137,12 +137,10 @@ q31_t CoeffsQ31[FILTER_LENGTH] =
 
 /* Buffers for q15 variant */
 q15_t OutBufferQ15[BLOCK_SIZE];
-q15_t Y_InBufferQ15[BLOCK_SIZE];
-q15_t X_InBufferQ15[BLOCK_SIZE];
-q15_t Wadd[BLOCK_SIZE];
+q15_t xQ15[BLOCK_SIZE];
+q15_t yQ15[BLOCK_SIZE];
 
-q15_t x_hist[NFIR];
-q15_t w[NFIR-DELAY];
+
 
 
 #define FILTER_LENGTH 1700
@@ -457,7 +455,13 @@ void ProcessBlock(uint16_t *Channel1_in, uint16_t *Channel2_in,
 	q15_t y_hat[BLOCK_SIZE];
 	q15_t err[BLOCK_SIZE];
 	/* updating Filter */
-	arm_lms_q15(&LMS, Channel1_in, Channel2_in, y_hat, err, BLOCK_SIZE);
+    /* Copy samples into workbuffer and convert to signed */
+//    for (i = 0; i < BLOCK_SIZE; i++) {
+//        xQ15[i] = ((q15_t) (Channel1_in[i] - 32768));
+//        yQ15[i] = ((q15_t) (Channel2_in[i]- 32768));
+//    }
+	/* Channel1 = Desired Signal */
+	arm_lms_q15(&LMS, Channel2_in, Channel1_in, y_hat, err, BLOCK_SIZE);
 
 	/* Reset bit, just for time measurements */
 	GPIO_ResetBits(GPIOD, GPIO_Pin_0 );
@@ -467,9 +471,9 @@ void ProcessBlock(uint16_t *Channel1_in, uint16_t *Channel2_in,
 
 		/* Filtered samples on output 1, make unsigned  */
 		Channel1_out[i] = err[i] + 32678;
-
+		Channel2_out[i] = err[i] + 32678;
 		/* Unfiltered samples on output 2 */
-		Channel2_out[i] = Channel2_in[i];
+		//Channel2_out[i] = Channel2_in[i];
 	}
 
 }

@@ -139,8 +139,8 @@ q31_t CoeffsQ31[FILTER_LENGTH] =
 
 /* Buffers for q15 variant */
 q15_t OutBufferQ15[BLOCK_SIZE];
-q15_t InBufferQ15[BLOCK_SIZE];
-q15_t InBuffer2Q15[BLOCK_SIZE];
+q15_t xQ15[BLOCK_SIZE];
+q15_t yQ15[BLOCK_SIZE];
 // Filter Bandpass, 40dB Daempfung, Sperr bis 6000Hz, ab 15000Hz, Durchlass 9000Hz- 12000HzFs=44100,
 #define FILTER_LENGTH 1600
 q15_t StateQ15[FILTER_LENGTH + BLOCK_SIZE - 1];
@@ -412,7 +412,7 @@ void InitProcessing(void) {
 	CoeffsQ15[400] = 4767;
 	CoeffsQ15[800] = 8767;
 	CoeffsQ15[1200] = 16767;
-	CoeffsQ15[1599] = 32767;
+	//CoeffsQ15[1599] = 32767;
     /* procedure code */
 
     /* Initialize the FIR module */
@@ -459,20 +459,23 @@ void ProcessBlock(uint16_t *Channel1_in, uint16_t *Channel2_in, uint16_t *Channe
 
     /* procedure data */
     int i;
-
+    q15_t err[BLOCK_SIZE];
     /* procedure code */
 
     /* Copy samples into workbuffer and convert to signed */
     for (i = 0; i < BLOCK_SIZE; i++) {
-        InBufferQ15[i] = ((q15_t) (Channel1_in[i] - 32768));
-
+        xQ15[i] = ((q15_t) (Channel1_in[i] - 32768));
+        yQ15[i] = ((q15_t) (Channel2_in[i] - 32768));
     }
 
     /* Set bit, just for time measurements */
     GPIO_SetBits(GPIOD, GPIO_Pin_0 );
 
     /* Filter one block of samples */
-    arm_fir_q15(&FirStateQ15, InBufferQ15, OutBufferQ15, BLOCK_SIZE);
+    arm_fir_q15(&FirStateQ15, xQ15, OutBufferQ15, BLOCK_SIZE);
+    for(i = 0; i<BLOCK_SIZE;i++){
+    	err[i] = yQ15[i] - OutBufferQ15[i];
+    }
 
     /* Reset bit, just for time measurements */
     GPIO_ResetBits(GPIOD, GPIO_Pin_0);
@@ -481,10 +484,10 @@ void ProcessBlock(uint16_t *Channel1_in, uint16_t *Channel2_in, uint16_t *Channe
     for (i = 0; i < BLOCK_SIZE; i++) {
 
         /* Filtered samples on output 1, make unsigned  */
-        Channel1_out[i] = OutBufferQ15[i] + 32678;
+        Channel1_out[i] = err[i] + 32678;
 
         /* Unfiltered samples on output 2 */
-        Channel2_out[i] = InBufferQ15[i] + 32678;
+        Channel2_out[i] = err[i] + 32678;
     }
 
 }
