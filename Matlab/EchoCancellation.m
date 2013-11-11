@@ -31,13 +31,13 @@ g(1) = 1;
 g(nshift) = a;
 y=filter(g,1,x);
 
-soundsc(y, fs);   % play sound + echo
+%soundsc(y, fs);   % play sound + echo
 
 %% Signal Processing
 
 if w_global == true
     w = zeros(NFIR - deltak, length(x) - NFIR+2);
-    w(1470-deltak,:) = 0.4;
+    w(1470-deltak,:) = 0.4; % cheat: we initialize the filter already with the right coefficients.
 else
     w = zeros(NFIR - deltak, 1);
 end
@@ -89,7 +89,7 @@ else
     plot(g(1:length(w)));
 end
 
-soundsc(err, fs);   % error signal
+%soundsc(err, fs);   % error signal
 
 %%
 % demonstration
