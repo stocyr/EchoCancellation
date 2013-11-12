@@ -95,20 +95,3 @@ end
 % demonstration
 soundsc(y(1:end/2), fs);   % play sound + echo
 soundsc(err(1:end/2), fs);   % play sound with echo cancellation
-
-%%
-% grafik für PPT:
-
-figure;
-g_arm = zeros(1600,1);
-g_arm(1) = 1;
-g_arm(400) =1/2;
-g_arm(800) = 1/4;
-g_arm(1200) = 1/8;
-g_arm(1600) = 1/16;
-
-plot(g_arm);
-stem(find(g_arm>0), g_arm(find(g_arm>0)), 'linewidth', 2);
-title('Echo Filter Coeffitients')
-xlabel('Coeffitients');
-grid on
